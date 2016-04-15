@@ -21,7 +21,6 @@
             android:text="TextView"
             android:textColor="@android:color/white"
             android:textSize="30sp" />
-
         <ImageView
             android:id="@+id/imageFirstArrow"
             android:layout_width="40dp"

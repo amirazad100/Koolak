@@ -3,18 +3,18 @@
     <row>
         <id>1</id>
         <Pid>0</Pid>
-        <type>0</type>
-        <title>دوره</title>
+        <type>1</type>
+        <title>شروع دوره</title>
     </row>
     <row>
         <id>2</id>
-        <Pid>1</Pid>
+        <Pid>0</Pid>
         <type>1</type>
         <title>شروع دوره</title>
     </row>
     <row>
         <id>3</id>
-        <Pid>1</Pid>
+        <Pid>0</Pid>
         <type>0</type>
         <title>هفته اول</title>
     </row>

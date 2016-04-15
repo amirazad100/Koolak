@@ -5,14 +5,14 @@ import java.util.ArrayList;
 /**
  * Created by amir on 4/14/2016.
  */
-public class Items {
+public class Item {
 
     private String pName;
     private int id;
     public boolean clicked;
     private ArrayList<SubCategory> mSubCategoryList;
 
-    public Items(String pName, int id, ArrayList<SubCategory> mSubCategoryList) {
+    public Item(String pName, int id, ArrayList<SubCategory> mSubCategoryList) {
         super();
         this.pName = pName;
         this.id = id;

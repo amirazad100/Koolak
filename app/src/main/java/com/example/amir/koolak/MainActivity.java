@@ -16,8 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.amir.koolak.Items.SubCategory;
-import com.example.amir.koolak.Items.SubCategory.ItemList;
+import com.example.amir.koolak.Item.SubCategory;
+import com.example.amir.koolak.Item.SubCategory.ItemList;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -28,10 +28,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity {
 
-    private ArrayList<Items> mainList;
-    private ArrayList<SubCategory> subArrayList1;
-    private ArrayList<SubCategory> subArrayList2;
-    private LinearLayout mLinearListView;
+    private ArrayList<Item> mainList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +36,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
 
-        SQLiteDatabase db = openOrCreateDatabase("koolak5", MODE_PRIVATE, null);
+        SQLiteDatabase db = openOrCreateDatabase("koolak7", MODE_PRIVATE, null);
 
 
         Cursor cursor = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='content'", null);
@@ -48,48 +45,43 @@ public class MainActivity extends Activity {
         }
         cursor.close();
 
-
-        mLinearListView = (LinearLayout) findViewById(R.id.linear_ListView);
+        LinearLayout mLinearListView = (LinearLayout) findViewById(R.id.linear_ListView);
 
         //Make array list one is for mainlist and other is for sublist
-        mainList = new ArrayList<Items>();
-        subArrayList1 = new ArrayList<SubCategory>();
-        subArrayList2 = new ArrayList<SubCategory>();
-
-        //This arraylists are used to put items in sublists
-        ArrayList<ItemList> subArrayListItem1 = new ArrayList<ItemList>();
-        ArrayList<ItemList> subArrayListItem2 = new ArrayList<ItemList>();
-        ArrayList<ItemList> subArrayListItem3 = new ArrayList<ItemList>();
-
-        //Add main categories in Mainlists along with their items it
-        mainList.add(new Items("Mobiles", 1, subArrayList1));
-        mainList.add(new Items("Accessories", 2, subArrayList2));
-
-//        //Add arrylist in category
-//        subArrayList1.add(new SubCategory("Motorola", subArrayListItem1));
-//
-//        //Add items means arrylist
-//        subArrayListItem1.add(new ItemList("Moto X", "29999"));
-//        subArrayListItem1.add(new ItemList("Moto G", "12999"));
-//        subArrayListItem1.add(new ItemList("Moto E", "6999"));
-
-
-        subArrayList2.add(new SubCategory("Covers", 3, subArrayListItem2));
-        subArrayList2.add(new SubCategory("Headphones", 4, subArrayListItem3));
-
-
-        subArrayListItem2.add(new ItemList("FlipCover", 5));
-        subArrayListItem2.add(new ItemList("pouch", 6));
-        subArrayListItem2.add(new ItemList("BackCover", 7));
-
-//        subArrayListItem3.add(new ItemList("Wired Headphones", 8));
-//        subArrayListItem3.add(new ItemList("Wireless Headphones", 9));
-
+        mainList = new ArrayList<>();
+        String[] columnsName = {"id", "title"};
+        cursor = db.query("content", columnsName, "Pid=0", null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            ArrayList<SubCategory> subCategories = new ArrayList<>();
+            Cursor cursor1 = db.query("content", columnsName, "Pid=" + cursor.getInt(cursor.getColumnIndex("id")), null, null, null, null);
+            cursor1.moveToFirst();
+            while (!cursor1.isAfterLast()) {
+                Cursor cursor2 = db.query("content", columnsName, "Pid=" + cursor1.getInt(cursor1.getColumnIndex("id")), null, null, null, null);
+                cursor2.moveToFirst();
+                ArrayList<ItemList> itemLists = new ArrayList<>();
+                while (!cursor2.isAfterLast()) {
+                    ItemList itemList = new ItemList(cursor2.getString(cursor2.getColumnIndex("title")), cursor2.getInt(cursor2.getColumnIndex("id")));
+                    itemLists.add(itemList);
+                    cursor2.moveToNext();
+                }
+                SubCategory subCategory = new SubCategory(cursor1.getString(cursor1.getColumnIndex("title")),
+                        cursor1.getInt(cursor1.getColumnIndex("id")), itemLists);
+                subCategories.add(subCategory);
+                cursor2.close();
+                cursor1.moveToNext();
+            }
+            Item item = new Item(cursor.getString(cursor.getColumnIndex("title")), cursor.getInt(cursor.getColumnIndex("id")), subCategories);
+            mainList.add(item);
+            cursor1.close();
+            cursor.moveToNext();
+        }
+        cursor.close();
 
         //Adds data into first row
         for (int i = 0; i < mainList.size(); i++) {
 
-            LayoutInflater inflater = null;
+            LayoutInflater inflater;
             inflater = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View mLinearView = inflater.inflate(R.layout.row_first, null);
 
@@ -130,12 +122,13 @@ public class MainActivity extends Activity {
             });
 
 
+
             final String name = mainList.get(i).getpName();
             mProductName.setText(name);
 
             //Adds data into second row
             for (int j = 0; j < mainList.get(i).getmSubCategoryList().size(); j++) {
-                LayoutInflater inflater2 = null;
+                LayoutInflater inflater2;
                 inflater2 = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 View mLinearView2 = inflater2.inflate(R.layout.row_second, null);
 
@@ -180,7 +173,7 @@ public class MainActivity extends Activity {
                 mSubItemName.setText(catName);
                 //Adds items in subcategories
                 for (int k = 0; k < mainList.get(i).getmSubCategoryList().get(j).getmItemListArray().size(); k++) {
-                    LayoutInflater inflater3 = null;
+                    LayoutInflater inflater3;
                     inflater3 = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                     View mLinearView3 = inflater3.inflate(R.layout.row_third, null);
 
